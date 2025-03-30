@@ -2,6 +2,7 @@
 using BusinessLogics.Repositories;
 using DataAccess.DTOs.Books;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace API.Controllers
 {
+    [EnableCors("AllowFrontend")]
     [Route("odata/Books")]
     public class BooksController : ODataController
     {

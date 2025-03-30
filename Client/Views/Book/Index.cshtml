@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "Book";
+}
+<head>
+    <link rel="stylesheet" href="~/css/book.css" />
+</head>
+<body>
+    
+    <div class="dashboard-content">
+        <div class="content-header">
+            <h1>Books</h1>
+            <div class="content-controls">
+                <button class="add-button" onclick="addNewBook()">
+                    <i class="fas fa-plus"></i>
+                    Add New Book
+                </button>
+            </div>
+        </div>
+
+        <div class="product-table">
+            <div class="table-header">
+                <div class="header-cell">Title <i class="fas fa-sort"></i></div>
+                <div class="header-cell">Author <i class="fas fa-sort"></i></div>
+                <div class="header-cell">Price <i class="fas fa-sort"></i></div>
+                <div class="header-cell">Stock <i class="fas fa-sort"></i></div>
+                <div class="header-cell">Genre <i class="fas fa-sort"></i></div>
+                <div class="header-cell">Action</div>
+            </div>
+            <div class="table-body" id="book-table-body">
+                <!-- Data will be inserted here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchBooks() {
+            const response = await fetch('https://localhost:7079/odata/Books');
+            const data = await response.json();
+            const tableBody = document.getElementById('book-table-body');
+            tableBody.innerHTML = '';
+
+            data.value.forEach(book => {
+                const row = `<div class='table-row'>
+                    <div class='cell'>${book.Title}</div>
+                    <div class='cell'>${book.Author}</div>
+                    <div class='cell'>$${book.Price.toFixed(2)}</div>
+                    <div class='cell'>${book.Stock} pcs</div>
+                    <div class='cell'>${book.Genre}</div>
+                    <div class='cell'><button class='action-button'><i class='fas fa-ellipsis-h'></i></button></div>
+                </div>`;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', fetchBooks);
+    </script>
+</body>
