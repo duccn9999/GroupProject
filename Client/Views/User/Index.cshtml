@@ -13,7 +13,7 @@
         <div class="content-header">
             <h1>Users</h1>
             <div class="content-controls">
-                <button class="add-button">
+                <button class="add-button" onclick="addNewUser()">
                     <i class="fas fa-plus"></i>
                     Add New User
                 </button>
@@ -76,6 +76,9 @@
             }
         }
 
+        function addNewUser() {
+            window.location.href = '@Url.Action("Create", "User")'; // Redirect to the create user page
+        }
 
         document.addEventListener('DOMContentLoaded', fetchUsers);
     </script>
