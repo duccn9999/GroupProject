@@ -12,7 +12,8 @@ body {
 }
 
 .dashboard-container {
-    max-width: 1200px;
+    width: 1400px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -185,7 +186,7 @@ h1 {
     background-color: #f0f2f5;
 }
 
-.add-product-button {
+.add-button {
     background-color: #4a6cf7;
     border: none;
     border-radius: 5px;
@@ -199,12 +200,12 @@ h1 {
     transition: background-color 0.2s;
 }
 
-.add-product-button:hover {
+.add-button:hover {
     background-color: #3a57d6;
 }
 
 /* Table Styles */
-.product-table {
+.list-table {
     background-color: white;
     border-radius: 10px;
     overflow: hidden;

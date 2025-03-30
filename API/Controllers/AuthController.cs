@@ -39,6 +39,19 @@ namespace API.Controllers
             return Ok(new { Token = token });
         }
 
+        [HttpGet("getUser")]
+        public IActionResult GetUser()
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = _authService.GetUserFromToken(token);
+            if (user == null)
+            {
+                return Unauthorized("Invalid token");
+            }
+
+            return Ok(user);
+        }
+
     }
 
     public class LoginRequest

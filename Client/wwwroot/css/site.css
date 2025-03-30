@@ -121,11 +121,12 @@ body {
 
 /* Container adjustment */
 .container {
-  margin-left: 270px;
-  width: calc(100% - 270px);
+  /* margin-left: 270px; */
+  width: calc(100%);
 }
 
+
 .footer {
-  margin-left: 270px;
-  width: calc(100% - 270px);
+  /* margin-left: 270px; */
+  width: calc(100%);
 }

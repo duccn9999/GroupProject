@@ -25,6 +25,11 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
+        // Check if the user is already logged in
+        if (sessionStorage.getItem("token")) {
+            window.location.href = "/Home/Index"; // Redirect to dashboard if logged in
+        }
+
         $("#loginForm").submit(function (event) {
             event.preventDefault();
 
@@ -32,7 +37,7 @@
             var password = $("#password").val();
 
             $.ajax({
-                url: "https://localhost:7079/odata/auth/login", // Call API directly
+                url: "https://localhost:7079/api/auth/login", // Call API directly
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({

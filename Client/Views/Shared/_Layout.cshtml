@@ -1,74 +1,162 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var path = HttpContextAccessor.HttpContext?.Request.Path.Value ?? "";
+    var isAuthPage = path.StartsWith("/Auth", StringComparison.OrdinalIgnoreCase);
+}
+
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Client</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/book.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Client.styles.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
-    <div class="sidebar">
-        <div class="logo-container">
-            <div class="logo">
-                <i class="fas fa-book"></i>
+    @if (!isAuthPage)
+    {
+        <div class="sidebar">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="logo-text">BOOKS</div>
             </div>
-            <div class="logo-text">BOOKS</div>
+
+            <div class="menu-label">MENU</div>
+
+            <div class="nav-items">
+                <a href="/Home" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/Book" class="nav-item">
+                    <i class="fas fa-book-open"></i>
+                    <span>Book</span>
+                </a>
+                <a href="/Category" class="nav-item">
+                    <i class="fas fa-tags"></i>
+                    <span>Category</span>
+                </a>
+                <a href="/User" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>User</span>
+                </a>
+
+                <div class="divider"></div>
+
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Setting</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help</span>
+                </a>
+                <a href="/Logout" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </a>
+            </div>
         </div>
-        
-        <div class="menu-label">MENU</div>
-        
-        <div class="nav-items">
-            <a href="/Home" class="nav-item">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="/Book" class="nav-item">
-                <i class="fas fa-book-open"></i>
-                <span>Book</span>
-            </a>
-            <a href="/Category" class="nav-item">
-                <i class="fas fa-tags"></i>
-                <span>Category</span>
-            </a>
-            <a href="/User" class="nav-item">
-                <i class="fas fa-user"></i>
-                <span>User</span>
-            </a>
-            
-            <div class="divider"></div>
-            
-            <a href="#" class="nav-item">
-                <i class="fas fa-cog"></i>
-                <span>Setting</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-question-circle"></i>
-                <span>Help</span>
-            </a>
-            <a href="/Logout" class="nav-item">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Log Out</span>
-            </a>
-        </div>
-    </div>
+    }
+
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody()
+            <div class="dashboard-container">
+                @if (!isAuthPage)
+                {
+                    <div class="dashboard-header">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" placeholder="Search" class="search-input">
+                        </div>
+                        <div class="user-controls">
+                            <div class="user-profile">
+                                <img id="profileImage" src="/img/user.png" alt="User Profile" class="profile-image">
+                                <div class="user-info">
+                                    <div class="user-name" id="userName">Loading...</div>
+                                    <div class="user-email" id="userEmail"></div>
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @RenderBody()
+            </div>
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <script>
+        const token = sessionStorage.getItem("token");
+        let user = localStorage.getItem("user");
+
+        console.log("Token:", token);
+        console.log("User:", user);
+
+        if (!token) {
+            window.location.href = "/Auth/Login"; // Redirect to login page if not authenticated
+        }
+
+        if (token && !user) {
+            console.log("Fetching user data...");
+            try {
+                const response = fetch("https://localhost:7079/api/Auth/getUser", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok " + response.statusText);
+                    }
+                    return response.json();
+                }).then(data => {
+                    user = data;
+                    console.log("User data:", user);
+                    localStorage.setItem("user", JSON.stringify(user));
+                }).catch(error => {
+                    console.error("Error fetching user data:", error);
+                });
+
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        }
+
+        user = JSON.parse(localStorage.getItem("user"));
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const user = JSON.parse(localStorage.getItem("user"));
+
+            if (user) {
+                document.getElementById("userName").textContent = user.userName;
+                document.getElementById("userEmail").textContent = user.email;
+                //document.getElementById("profileImage").src = user.profileImageUrl;
+            } else {
+                document.getElementById("userName").textContent = "Guest";
+                document.getElementById("userEmail").textContent = "";
+                //document.getElementById("profileImage").src = "/img/user.png";
+            }
+        });
+    </script>
+
+    @* <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - Client - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

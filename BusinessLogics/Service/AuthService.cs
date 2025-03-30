@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BusinessLogics.Repositories;
 using DataAccess.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -10,9 +11,11 @@ namespace BusinessLogics.Service
     public class AuthService
     {
         private readonly IConfiguration _configuration;
+        private readonly IUserRepository _userRepository;
 
-        public AuthService(IConfiguration configuration)
+        public AuthService(IConfiguration configuration, IUserRepository userRepository)
         {
+            _userRepository = userRepository;
             _configuration = configuration;
         }
 
@@ -48,6 +51,20 @@ namespace BusinessLogics.Service
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public User GetUserFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claims = jwtToken.Claims.ToList();
+
+            var userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            var user = _userRepository.GetById(Guid.Parse(userIdClaim.Value));
+
+
+            return user;
         }
     }
 }
