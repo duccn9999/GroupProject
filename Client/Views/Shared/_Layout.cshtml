@@ -102,7 +102,7 @@
         console.log("Token:", token);
         console.log("User:", user);
 
-        if (!token) {
+        if (!token && !@isAuthPage) {
             window.location.href = "/Auth/Login"; // Redirect to login page if not authenticated
         }
 
