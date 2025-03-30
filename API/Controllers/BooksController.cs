@@ -3,6 +3,7 @@ using BusinessLogics.Repositories;
 using DataAccess.DTOs.Books;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -23,9 +24,10 @@ namespace API.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public ActionResult<IEnumerable<Book>> GetAll()
+        [EnableQuery]
+        public ActionResult<IQueryable<Book>> GetAll()
         {
-            var books = _bookRepository.GetAll();
+            var books = _bookRepository.GetAll().AsQueryable();
             return Ok(books);
         }
 
