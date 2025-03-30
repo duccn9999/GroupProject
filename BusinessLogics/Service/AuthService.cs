@@ -12,11 +12,15 @@ namespace BusinessLogics.Service
     {
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
+        // fix
+        private readonly IRoleRepository _roleRepository;
+        //
 
-        public AuthService(IConfiguration configuration, IUserRepository userRepository)
+        public AuthService(IConfiguration configuration, IUserRepository userRepository, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _configuration = configuration;
+            _roleRepository = roleRepository;
         }
 
         public string GenerateToken(User user)
@@ -28,17 +32,30 @@ namespace BusinessLogics.Service
             };
 
             // Add role claims
+            //if (user.UserRoles != null)
+            //{
+            //    foreach (var userRole in user.UserRoles)
+            //    {
+            //        if (userRole.Role != null)
+            //        {
+            //            claims = claims.Append(new Claim(ClaimTypes.Role, userRole.Role.RoleName)).ToArray();
+            //        }
+            //    }
+            //}
+            
+
+            // fix
             if (user.UserRoles != null)
             {
                 foreach (var userRole in user.UserRoles)
                 {
-                    if (userRole.Role != null)
+                    if (userRole.RoleId != null)
                     {
-                        claims = claims.Append(new Claim(ClaimTypes.Role, userRole.Role.RoleName)).ToArray();
+                        claims = claims.Append(new Claim(ClaimTypes.Role, _roleRepository.GetById(userRole.RoleId).RoleName)).ToArray();
                     }
                 }
             }
-
+            // fix
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

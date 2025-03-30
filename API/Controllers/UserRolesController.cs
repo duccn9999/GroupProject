@@ -18,7 +18,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
         // PUT api/<UserRolesController>/5
-        [HttpPut("{userId}")]
+        [HttpPut("UpdateRolesOfUser/{userId}")]
         public IActionResult Put(Guid userId, [FromBody] List<Guid> roleIds)
         {
             _userRolesRepository.UpdateRolesOfUser(userId, roleIds);

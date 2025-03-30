@@ -3,8 +3,6 @@ using System.Text;
 using BusinessLogics.Repositories;
 using BusinessLogics.RepositoryImpl;
 using BusinessLogics.Service;
-using DataAccess.DTOs.Books;
-using DataAccess.DTOs.Categories;
 using DataAccess.Models;
 using DataAccess.Profiles;
 using DataAccess.Seed;
@@ -13,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -62,6 +61,7 @@ builder.Services.AddAuthorization(options =>
             policy.Requirements.Add(new RequiredPermissionRequirement(permission)));
     }
 });
+builder.Services.AddTransient<IAuthorizationHandler, RequiredPermissionHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
     options =>
@@ -97,6 +97,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepositoryImpl>();
 builder.Services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
 builder.Services.AddScoped<IRolePermissonRepository, RolePermissionRepositoryImpl>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepositoryImpl>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepositoryImpl>();
 builder.Services.AddAutoMapper(typeof(CategoryProfile), typeof(BookProfile));
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddCors(options =>
@@ -144,7 +145,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

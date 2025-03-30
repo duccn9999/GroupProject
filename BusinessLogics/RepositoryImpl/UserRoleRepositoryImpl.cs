@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogics.RepositoryImpl
 {
-    public class UserRoleRepository : IUserRoleRepository
+    public class UserRoleRepositoryImpl : IUserRoleRepository
     {
         private readonly GroupProjectContext _context;
 
-        public UserRoleRepository(GroupProjectContext context)
+        public UserRoleRepositoryImpl(GroupProjectContext context)
         {
             _context = context;
         }

@@ -19,7 +19,7 @@ namespace API.Controllers
         }
 
         // PUT api/<RolePermissionsController>/5
-        [HttpPut("{roleId}")]
+        [HttpPut("UpdateRolePermissionOfRole/{roleId}")]
         public IActionResult Put(Guid roleId, [FromBody] List<Guid> permissionIds)
         {
             _rolePermissonRepository.UpdateRolePermissionOfRole(roleId, permissionIds);

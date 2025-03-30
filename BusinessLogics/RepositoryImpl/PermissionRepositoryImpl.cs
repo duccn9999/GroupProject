@@ -34,10 +34,5 @@ namespace BusinessLogics.RepositoryImpl
 
             return role.RolePermissions.Select(rp => rp.Permission).ToList();
         }
-
-        public List<Permission> GetPermissonsOfRole(Guid roleId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
