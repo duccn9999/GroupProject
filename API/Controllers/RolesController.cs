@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessLogics.Repositories;
+using DataAccess.DTOs.Roles;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -21,15 +22,17 @@ namespace API.Controllers
 
         // GET: odata/Roles
         [EnableQuery]
-        [HttpGet]
-        public ActionResult<IEnumerable<Role>> Get()
+        [HttpGet] // This should now be unique
+        public ActionResult<IQueryable<Role>> GetAll()
         {
-            var roles = _roleRepository.GetAll();
+            var roles = _roleRepository.GetAll().AsQueryable();
             return Ok(roles);
         }
 
+
         // GET odata/Roles/{id}
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("{id}")]
         public ActionResult<Role> GetById(Guid id)
         {
             var role = _roleRepository.GetById(id);
@@ -40,23 +43,23 @@ namespace API.Controllers
 
         // POST odata/Roles
         [HttpPost]
-        public ActionResult Create([FromBody] Role model)
+        public ActionResult Create([FromBody] CreateRoleDTO model)
         {
             if (model == null)
                 return BadRequest(new { message = "Invalid role data." });
-
-            _roleRepository.Create(model);
-            return CreatedAtAction(nameof(GetById), new { id = model.RoleId }, model);
+            var role = _mapper.Map<Role>(model);
+            _roleRepository.Create(role);
+            return Created(role);
         }
 
         // PUT odata/Roles/{id}
-        [HttpPut("{id}")]
-        public ActionResult Update(Guid id, [FromBody] Role model)
+        [HttpPut]
+        public ActionResult Update([FromBody] UpdateRoleDTO model)
         {
-            if (model == null || id != model.RoleId)
+            if (!ModelState.IsValid)
                 return BadRequest(new { message = "Invalid role data." });
 
-            var existingRole = _roleRepository.GetById(id);
+            var existingRole = _roleRepository.GetById(model.RoleId);
             if (existingRole == null)
                 return NotFound(new { message = "Role not found." });
 

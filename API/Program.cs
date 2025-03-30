@@ -23,6 +23,7 @@ IEdmModel GetEdmModel()
     modelBuilder.EntitySet<Category>("Categories");
     modelBuilder.EntitySet<Book>("Books");
     modelBuilder.EntitySet<User>("Users");
+    modelBuilder.EntitySet<Role>("Roles");
     return modelBuilder.GetEdmModel();
 }
 builder.Services.AddControllers()

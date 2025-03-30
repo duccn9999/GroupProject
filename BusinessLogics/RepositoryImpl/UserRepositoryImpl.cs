@@ -49,14 +49,9 @@ namespace BusinessLogics.RepositoryImpl
             }
         }
 
-        public List<UserDTO> GetAll()
+        public List<User> GetAll()
         {
-            return _context.Users.Select(user => new UserDTO
-            {
-                UserId = user.UserId,
-                UserName = user.UserName,
-                Password = user.Password
-            }).ToList();
+            return _context.Users.ToList();
         }
 
         public User GetById(Guid id)
