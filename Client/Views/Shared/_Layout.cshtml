@@ -60,7 +60,7 @@
                     <i class="fas fa-question-circle"></i>
                     <span>Help</span>
                 </a>
-                <a href="/Logout" class="nav-item">
+                <a href="/Auth/Logout" class="nav-item">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Log Out</span>
                 </a>
@@ -76,7 +76,7 @@
                     <div class="dashboard-header">
                         <div class="search-container">
                             <i class="fas fa-search search-icon"></i>
-                            <input type="text" placeholder="Search" class="search-input">
+                            <input type="text" id="searchInput" placeholder="Search" class="search-input">
                         </div>
                         <div class="user-controls">
                             <div class="user-profile">
@@ -145,6 +145,15 @@
                 document.getElementById("userEmail").textContent = "";
                 //document.getElementById("profileImage").src = "/img/user.png";
             }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("searchInput");
+
+            searchInput.addEventListener("input", function () {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                window.dispatchEvent(new CustomEvent("globalSearch", { detail: searchTerm }));
+            });
         });
     </script>
 

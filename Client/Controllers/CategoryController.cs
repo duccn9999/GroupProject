@@ -17,5 +17,24 @@ namespace Client.Controllers
         {
             return View();
         }
+
+        public IActionResult Details(int id)
+        {
+            // Logic to get category details by id
+            return View();
+        }
+
+        public IActionResult Create()
+        {
+            return View();
+        }   
+
+        public IActionResult Edit(int id)
+        {
+            // Logic to get category details by id for editing
+            return View();
+        }
+
+
     }
 }

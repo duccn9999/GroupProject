@@ -1,57 +1,145 @@
 @{
-    ViewData["Title"] = "Book";
+    ViewData["Title"] = "Books";
 }
+
 <head>
     <link rel="stylesheet" href="~/css/book.css" />
 </head>
+
 <body>
-    
+
     <div class="dashboard-content">
         <div class="content-header">
             <h1>Books</h1>
             <div class="content-controls">
-                <button class="add-button" onclick="addNewBook()">
+                <button class="add-button" onclick="window.location.href='/Book/Create'">
                     <i class="fas fa-plus"></i>
                     Add New Book
                 </button>
             </div>
         </div>
 
-        <div class="product-table">
+        <div class="list-table">
             <div class="table-header">
                 <div class="header-cell">Title <i class="fas fa-sort"></i></div>
-                <div class="header-cell">Author <i class="fas fa-sort"></i></div>
+                <div class="header-cell">Description <i class="fas fa-sort"></i></div>
                 <div class="header-cell">Price <i class="fas fa-sort"></i></div>
                 <div class="header-cell">Stock <i class="fas fa-sort"></i></div>
-                <div class="header-cell">Genre <i class="fas fa-sort"></i></div>
                 <div class="header-cell">Action</div>
             </div>
             <div class="table-body" id="book-table-body">
                 <!-- Data will be inserted here dynamically -->
             </div>
         </div>
+
+        <div class="pagination">
+            <button class="pagination-button prev">
+                @* <i class="fas fa-chevron-left"></i>
+                Previous *@
+            </button>
+            <div class="page-numbers">
+            </div>
+            <button class="pagination-button next">
+                @* Next
+                <i class="fas fa-chevron-right"></i> *@
+            </button>
+        </div>
+
     </div>
 
+
+
     <script>
-        async function fetchBooks() {
-            const response = await fetch('https://localhost:7079/odata/Books');
+        let currentPage = 1;
+        const pageSize = 5; // Number of items per page
+        let currentSearchTerm = "";
+
+        async function fetchBooks(page = 1, searchTerm = "") {
+            currentPage = page;
+            currentSearchTerm = searchTerm; // Assuming searchTerm is defined somewhere in your code
+            console.log("Search team:" + currentSearchTerm);
+            const skip = (page - 1) * pageSize;
+
+            let apiUrl = `https://localhost:7079/odata/Books?$top=${pageSize}&$skip=${skip}&$count=true`;
+            if (searchTerm) {
+                apiUrl += `&$filter=contains(tolower(Title), '${searchTerm.toLowerCase()}')`;
+            }
+            const response = await fetch(apiUrl, {
+                headers: {
+                    'Accept': 'application/json;odata.metadata=minimal',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+
+
             const data = await response.json();
             const tableBody = document.getElementById('book-table-body');
             tableBody.innerHTML = '';
 
             data.value.forEach(book => {
                 const row = `<div class='table-row'>
-                    <div class='cell'>${book.Title}</div>
-                    <div class='cell'>${book.Author}</div>
-                    <div class='cell'>$${book.Price.toFixed(2)}</div>
-                    <div class='cell'>${book.Stock} pcs</div>
-                    <div class='cell'>${book.Genre}</div>
-                    <div class='cell'><button class='action-button'><i class='fas fa-ellipsis-h'></i></button></div>
-                </div>`;
+                <div class='cell'>${book.Title}</div>
+                <div class='cell'>${book.Description}</div>
+                <div class='cell'>$${book.Price.toFixed(2)}</div>
+                <div class='cell'>${book.Stock} pcs</div>
+                <div class='cell'>
+                    <button class='action-button' onclick="editBook('${book.BookId}')"><i class='fas fa-edit'></i></button>
+                    <button class='action-button' onclick="deleteBook('${book.BookId}')"><i class='fas fa-trash'></i></button>
+                </div>
+            </div>`;
                 tableBody.innerHTML += row;
             });
+
+            // Update pagination
+            updatePagination(data['@@odata.count']);
         }
-        
-        document.addEventListener('DOMContentLoaded', fetchBooks);
+
+        function updatePagination(totalItems) {
+            const pageNumbers = document.querySelector('.page-numbers');
+            pageNumbers.innerHTML = '';
+
+            const totalPages = Math.ceil(totalItems / pageSize);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.classList.add('page-number');
+                if (i === currentPage) {
+                    pageButton.classList.add('active');
+                }
+                pageButton.textContent = i.toString();
+                pageButton.onclick = () => fetchBooks(i);
+                pageNumbers.appendChild(pageButton);
+            }
+        }
+
+        function editBook(bookId) {
+            window.location.href = `/Book/Edit?id=${bookId}`;
+        }
+
+        function deleteBook(bookId) {
+            if (confirm('Are you sure you want to delete this book?')) {
+                fetch(`https://localhost:7079/odata/Books(${bookId})`, {
+                    method: 'DELETE',
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Book deleted successfully!');
+                            fetchBooks(currentPage);
+                        } else {
+                            alert('Error deleting book. Please try again.');
+                        }
+                    });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => fetchBooks());
+
+        document.addEventListener("input", function (event) {
+            const searchInput = document.getElementById("searchInput").value;
+            console.log("Search term: " + searchInput);
+            fetchBooks(1, searchInput);
+        });
     </script>
+
 </body>

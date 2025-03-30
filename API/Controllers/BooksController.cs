@@ -4,6 +4,7 @@ using DataAccess.DTOs.Books;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -25,6 +26,7 @@ namespace API.Controllers
 
         // GET: api/Books
         [HttpGet]
+        [EnableQuery]
         public ActionResult<IEnumerable<Book>> GetAll()
         {
             var books = _bookRepository.GetAll();

@@ -1,11 +1,14 @@
 @{
     ViewData["Title"] = "Users";
 }
+
 <head>
     <link rel="stylesheet" href="~/css/book.css" />
+    <link rel="stylesheet" href="~/css/user.css" />
 </head>
+
 <body>
-    
+
     <div class="dashboard-content">
         <div class="content-header">
             <h1>Users</h1>
@@ -21,6 +24,7 @@
             <div class="table-header">
                 <div class="header-cell">User ID</div>
                 <div class="header-cell">User Name</div>
+                <div class="header-cell">User Password</div>
                 <div class="header-cell">Actions</div>
             </div>
             <div class="table-body" id="user-table-body">
@@ -41,16 +45,37 @@
             data.forEach(user => {
                 console.log(user.UserId);
                 const row = `<div class='table-row'>
-                    <div class='cell'>${user.UserId}</div>
-                    <div class='cell'>${user.UserName}</div>
+                    <div class='cell'>${user.userId}</div>
+                    <div class='cell'>${user.userName}</div>
                     <div class='cell'>
-                        <a href="#" class='edit-button' onclick='editUser("${user.UserId}", "${user.UserName}")'>Edit</a>
-                        <a href="#" class='delete-button' onclick='deleteUser("${user.UserId}")'>Delete</a>
+                        <div class="password-field">
+                            <input type="password" id="password-${user.userId}" value="${user.password}" class="password-input" readonly />
+                            <button class="toggle-password" onclick="togglePassword('${user.userId}')">👁</button>
+                        </div>
                     </div>
-                </div>`;
+                    <div class='cell'>
+                        <button class='action-button' onclick='editUser("${user.userId}", "${user.userName}")'><i class='fas fa-edit'></i></button>
+                        <button class='action-button' onclick='deleteUser("${user.userId}")'><i class='fas fa-trash'></i></button>
+                    </div>
+                </div>
+                `;
                 tableBody.innerHTML += row;
             });
         }
+
+        function togglePassword(userId) {
+            const passwordField = document.getElementById(`password-${userId}`);
+            const toggleButton = passwordField.nextElementSibling; // Get the button
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordField.type = "password";
+                toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
 
         document.addEventListener('DOMContentLoaded', fetchUsers);
     </script>

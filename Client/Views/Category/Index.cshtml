@@ -1,12 +1,14 @@
 @{
     ViewData["Title"] = "Category";
 }
+
 <head>
     <link rel="stylesheet" href="~/css/book.css" />
 
 </head>
+
 <body>
-    
+
     <div class="dashboard-content">
         <div class="content-header">
             <h1>Categories</h1>
@@ -23,31 +25,126 @@
                 <div class="header-cell">Category Name <i class="fas fa-sort"></i></div>
                 <div class="header-cell">Actions</div>
             </div>
-            <div class="table-body" id="list-table-body">
+            <div class="table-body" id="category-table-body">
                 <!-- Data will be inserted here dynamically -->
             </div>
+        </div>
+        <div class="pagination">
+
+
+            <button class="pagination-button prev">
+                @* <i class="fas fa-chevron-left"></i>
+                Previous *@
+            </button>
+            <div class="page-numbers">
+            </div>
+            <button class="pagination-button next">
+                @* Next
+                <i class="fas fa-chevron-right"></i> *@
+            </button>
         </div>
     </div>
 
     <script>
-        async function fetchCategories() {
-            const response = await fetch('https://localhost:7079/odata/Categories');
+        let currentCategoryPage = 1;
+        const categoryPageSize = 5;
+        let totalCategories = 0;
+
+        async function fetchCategories(page = 1, searchTerm = "") {
+            currentCategoryPage = page;
+
+            const searchQuery = searchTerm ? `&$filter=contains(CategoryName, '${searchTerm}')` : '';
+            const skip = (page - 1) * categoryPageSize;
+
+            let apiUrl = `https://localhost:7079/odata/Categories?$top=${categoryPageSize}&$skip=${skip}&$count=true${searchQuery}`;
+
+            console.log("API URL: " + apiUrl);
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+
             const data = await response.json();
+            totalCategories = data['@@odata.count'];
+
             const tableBody = document.getElementById('category-table-body');
             tableBody.innerHTML = '';
 
             data.value.forEach(category => {
                 const row = `<div class='table-row'>
-                    <div class='cell'>${category.CategoryName}</div>
-                    <div class='cell'>
-                        <button class='edit-button' onclick='editCategory("${category.CategoryId}")'>Edit</button>
-                        <button class='delete-button' onclick='deleteCategory("${category.CategoryId}")'>Delete</button>
-                    </div>
-                </div>`;
+                <div class='cell'>${category.CategoryName}</div>
+                <div class='cell'>
+                    <button class='action-button' onclick='editCategory("${category.CategoryId}")'><i class='fas fa-edit'></i></button>
+                    <button class='action-button' onclick='deleteCategory("${category.CategoryId}")'><i class='fas fa-trash'></i></button>
+                </div>
+            </div>`;
                 tableBody.innerHTML += row;
             });
+
+            updateCategoryPagination();
         }
 
-        document.addEventListener('DOMContentLoaded', fetchCategories);
+        function updateCategoryPagination() {
+            const totalPages = Math.ceil(totalCategories / categoryPageSize);
+            const prevButton = document.querySelector('.pagination-button.prev');
+            const nextButton = document.querySelector('.pagination-button.next');
+            const pageNumbersContainer = document.querySelector('.page-numbers');
+
+            prevButton.disabled = currentCategoryPage === 1;
+            nextButton.disabled = currentCategoryPage === totalPages;
+
+            pageNumbersContainer.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.classList.add('page-number');
+                if (i === currentCategoryPage) button.classList.add('active');
+                button.textContent = i;
+                button.onclick = () => fetchCategories(i);
+                pageNumbersContainer.appendChild(button);
+            }
+        }
+
+        function addNewCategory() {
+            window.location.href = '/Category/Create';
+        }
+        function editCategory(categoryId) {
+            window.location.href = `/Category/Edit?id=${categoryId}`;
+        }
+
+        function deleteCategory(categoryId) {
+            if (confirm('Are you sure you want to delete this category?')) {
+                fetch(`https://localhost:7079/odata/Categories(${categoryId})`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Category deleted successfully!');
+                            fetchCategories(currentCategoryPage);
+                        } else {
+                            alert('Failed to delete category.');
+                        }
+                    });
+            }
+        }
+
+        document.querySelector('.pagination-button.prev').addEventListener('click', () => {
+            if (currentCategoryPage > 1) fetchCategories(currentCategoryPage - 1);
+        });
+
+        document.querySelector('.pagination-button.next').addEventListener('click', () => {
+            const totalPages = Math.ceil(totalCategories / categoryPageSize);
+            if (currentCategoryPage < totalPages) fetchCategories(currentCategoryPage + 1);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => fetchCategories(1));
+
+        document.addEventListener("input", function (event) {
+            const searchInput = document.getElementById("searchInput").value;
+            console.log("Search term: " + searchInput);
+            fetchCategories(1, searchInput);
+        });
     </script>
 </body>

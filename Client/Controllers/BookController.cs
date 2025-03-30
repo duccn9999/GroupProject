@@ -23,5 +23,47 @@ namespace Client.Controllers
             // Logic to get book details by id
             return View();
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Book book)
+        {
+            if (ModelState.IsValid)
+            {
+                // Logic to save the book to the database or API
+                // Redirect to the index page after saving
+                return RedirectToAction("Index");
+            }
+
+
+            return View(book);
+        }
+
+        public IActionResult Edit(int id)
+        {
+            // Logic to get book details by id for editing
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, Book book)
+        {
+            if (ModelState.IsValid)
+            {
+                // Logic to update the book in the database or API
+                // Redirect to the index page after updating
+                return RedirectToAction("Index");
+            }
+
+            return View(book);
+        }
+    }
+
+    public class Book
+    {
     }
 }
