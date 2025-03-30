@@ -97,16 +97,16 @@
 
     <script>
         const token = sessionStorage.getItem("token");
-        let user = localStorage.getItem("user");
+        let currentuser = localStorage.getItem("user");
 
-        console.log("Token:", token);
-        console.log("User:", user);
+        //console.log("Token:", token);
+        //console.log("User:", currentuser);
 
         if (!token && !@isAuthPage) {
             window.location.href = "/Auth/Login"; // Redirect to login page if not authenticated
         }
 
-        if (token && !user) {
+        if (token && !currentuser) {
             console.log("Fetching user data...");
             try {
                 const response = fetch("https://localhost:7079/api/Auth/getUser", {
@@ -119,9 +119,9 @@
                     }
                     return response.json();
                 }).then(data => {
-                    user = data;
-                    console.log("User data:", user);
-                    localStorage.setItem("user", JSON.stringify(user));
+                    currentuser = data;
+                    console.log("User data:", currentuser);
+                    localStorage.setItem("user", JSON.stringify(currentuser));
                 }).catch(error => {
                     console.error("Error fetching user data:", error);
                 });
@@ -131,14 +131,14 @@
             }
         }
 
-        user = JSON.parse(localStorage.getItem("user"));
+        currentuser = JSON.parse(localStorage.getItem("user"));
 
         document.addEventListener("DOMContentLoaded", function () {
-            const user = JSON.parse(localStorage.getItem("user"));
+            const currentuser = JSON.parse(localStorage.getItem("user"));
 
-            if (user) {
-                document.getElementById("userName").textContent = user.userName;
-                document.getElementById("userEmail").textContent = user.email;
+            if (currentuser) {
+                document.getElementById("userName").textContent = currentuser.userName;
+                document.getElementById("userEmail").textContent = currentuser.email;
                 //document.getElementById("profileImage").src = user.profileImageUrl;
             } else {
                 document.getElementById("userName").textContent = "Guest";
