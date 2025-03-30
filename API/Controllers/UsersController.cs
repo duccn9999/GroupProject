@@ -2,7 +2,9 @@
 using BusinessLogics.Repositories;
 using DataAccess.DTOs.Users;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 namespace API.Controllers
 {
     [Route("odata/Users")]
+    [Authorize(Roles = "Admin")]
     public class UsersController : ODataController
     {
         private readonly IUserRepository _userRepository;
@@ -23,14 +26,16 @@ namespace API.Controllers
 
         // GET: api/users
         [HttpGet]
-        public ActionResult<IEnumerable<UserDTO>> GetAll()
+        [EnableQuery]
+        public ActionResult<IQueryable<User>> GetAll()
         {
-            var users = _userRepository.GetAll();
+            var users = _userRepository.GetAll().AsQueryable();
             return Ok(users);
         }
 
         // GET: api/users/{id}
         [HttpGet("{id}")]
+        [EnableQuery]
         public ActionResult<User> GetById(Guid id)
         {
             try
@@ -46,25 +51,25 @@ namespace API.Controllers
 
         // POST: api/users
         [HttpPost]
-        public ActionResult Create([FromBody] UserDTO model)
+        public ActionResult Create([FromBody] CreateUserDTO model)
         {
             if (model == null)
                 return BadRequest(new { message = "Invalid user data." });
             var user = _mapper.Map<User>(model);
             _userRepository.Create(user);
-            return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
+            return Created(user);
         }
 
         // PUT: api/users/{id}
-        [HttpPut("{id}")]
-        public ActionResult Update(Guid id, [FromBody] UserDTO model)
+        [HttpPut]
+        public ActionResult Update([FromBody] UpdateUserDTO model)
         {
-            if (model == null || id != model.UserId)
+            if (!ModelState.IsValid)
                 return BadRequest(new { message = "Invalid user data." });
 
             try
             {
-                var existingUser = _userRepository.GetById(id);
+                var existingUser = _userRepository.GetById(model.UserId);
                 if (existingUser == null)
                     return NotFound(new { message = "User not found." });
 

@@ -50,9 +50,21 @@
     </div>
 
     <script>
+        token = sessionStorage.getItem('token'); // Assuming you store the token in localStorage
+        if (!token) {
+            alert("You are not logged in. Please log in to continue.");
+            window.location.href = '/Auth/Login'; // Redirect to login page
+        }
+
         async function fetchCategories() {
-            const response = await fetch('https://localhost:7079/odata/Categories');
-            const data = await response.json();
+            const response = await $.ajax({
+                url: 'https://localhost:7079/odata/Categories',
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response;
             const categorySelect = document.getElementById('categoryId');
 
             data.value.forEach(category => {
@@ -76,18 +88,21 @@
                 categoryId: formData.get('categoryId')
             };
 
-            const response = await fetch('https://localhost:7079/odata/Books', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
+            try {
+                const response = await $.ajax({
+                    url: 'https://localhost:7079/odata/Books',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-            if (response.ok) {
                 alert('Book added successfully!');
                 window.location.href = '@Url.Action("Index", "Book")'; // Redirect to the books list
-            } else {
+            } catch (error) {
+                console.error('Error adding book:', error);
                 alert('Error adding book. Please try again.');
             }
         }

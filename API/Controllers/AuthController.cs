@@ -1,13 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using AutoMapper;
 using BusinessLogics.Repositories;
 using BusinessLogics.Service;
-using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {

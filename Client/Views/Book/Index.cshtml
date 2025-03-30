@@ -53,6 +53,7 @@
         let currentPage = 1;
         const pageSize = 5; // Number of items per page
         let currentSearchTerm = "";
+        token = sessionStorage.getItem("token");
 
         async function fetchBooks(page = 1, searchTerm = "") {
             currentPage = page;
@@ -64,16 +65,19 @@
             if (searchTerm) {
                 apiUrl += `&$filter=contains(tolower(Title), '${searchTerm.toLowerCase()}')`;
             }
-            const response = await fetch(apiUrl, {
+
+            const response = await $.ajax({
+                url: apiUrl,
+                method: 'GET',
                 headers: {
                     'Accept': 'application/json;odata.metadata=minimal',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 }
-            });
-            
+            }); // Fetch data from the API
 
-
-            const data = await response.json();
+            console.log(response);
+            const data = await response;
             const tableBody = document.getElementById('book-table-body');
             tableBody.innerHTML = '';
 
@@ -119,17 +123,20 @@
 
         function deleteBook(bookId) {
             if (confirm('Are you sure you want to delete this book?')) {
-                fetch(`https://localhost:7079/odata/Books(${bookId})`, {
-                    method: 'DELETE',
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('Book deleted successfully!');
-                            fetchBooks(currentPage);
-                        } else {
-                            alert('Error deleting book. Please try again.');
-                        }
-                    });
+                $.ajax({
+                    url: `https://localhost:7079/odata/Books(${bookId})`,
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    type: 'DELETE',
+                    success: function () {
+                        alert('Book deleted successfully!');
+                        fetchBooks(currentPage);
+                    },
+                    error: function () {
+                        alert('Error deleting book. Please try again.');
+                    }
+                });
             }
         }
 

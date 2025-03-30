@@ -5,7 +5,7 @@ namespace BusinessLogics.Repositories
 {
     public interface IUserRepository
     {
-        public List<UserDTO> GetAll();
+        public List<User> GetAll();
         public User GetById(Guid id);
         public void Create(User user);
         public void Update(User user);

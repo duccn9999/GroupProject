@@ -26,6 +26,7 @@
     </div>
 
     <script>
+        token = sessionStorage.getItem('token'); // Assuming you store the token in localStorage
         async function submitForm(event) {
             event.preventDefault(); // Prevent the default form submission
             
@@ -39,6 +40,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Include the token in the Authorization header
                 },
                 body: JSON.stringify(data)
             });

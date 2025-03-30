@@ -24,9 +24,15 @@
     </div>
 
     <script>
+        token = sessionStorage.getItem('token'); // Assuming you store the token in localStorage
 
         async function fetchCategory(categoryId) {
-            const response = await fetch(`https://localhost:7079/odata/Categories/${categoryId}`);
+            const response = await fetch(`https://localhost:7079/odata/Categories/${categoryId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const category = await response.json();
 
             document.getElementById('categoryId').value = category.CategoryId; // Assuming you have a hidden input for the category ID
@@ -42,20 +48,22 @@
                 categoryName: formData.get('title'),
             };
 
-            const response = await fetch(`https://localhost:7079/odata/Categories`, {
-                method: 'PUT',
+            $.ajax({
+                url: 'https://localhost:7079/odata/Categories',
+                type: 'PUT',
+                contentType: 'application/json',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(data)
+                data: JSON.stringify(data),
+                success: function () {
+                    alert('Category updated successfully!');
+                    window.location.href = '@Url.Action("Index", "Category")'; // Redirect to the category list
+                },
+                error: function (xhr) {
+                    alert(`Error updating category: ${xhr.responseText}`);
+                }
             });
-
-            if (response.ok) {
-                alert('Category updated successfully!');
-                window.location.href = '@Url.Action("Index", "Category")'; // Redirect to the books list
-            } else {
-                alert('Error updating category. Please try again.');
-            }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
