@@ -14,6 +14,12 @@ namespace BusinessLogics.RepositoryImpl
             _context = context;
         }
 
+        public bool CheckUserNameExist(string userName)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.UserName == userName);
+            return user == null ;
+        }
+
         public void Create(User user)
         {
             using var transaction = _context.Database.BeginTransaction();

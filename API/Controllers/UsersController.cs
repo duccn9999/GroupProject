@@ -55,6 +55,10 @@ namespace API.Controllers
         {
             if (model == null)
                 return BadRequest(new { message = "Invalid user data." });
+            if (_userRepository.CheckUserNameExist(model.UserName))
+            {
+                return BadRequest("This username is already exist");
+            }
             var user = _mapper.Map<User>(model);
             _userRepository.Create(user);
             return Created(user);
