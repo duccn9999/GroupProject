@@ -55,6 +55,7 @@ namespace API.Controllers
         {
             if (model == null)
                 return BadRequest(new { message = "Invalid user data." });
+            
             var user = _mapper.Map<User>(model);
             _userRepository.Create(user);
             return Created(user);

@@ -38,23 +38,27 @@
 
             const  permissions  = response;
 
-            console.log(response);
             
             const assignedResponse = await fetch(`https://localhost:7079/api/Permissions/GetPermissionOfRole/${roleId}`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const assignedPermissions = await assignedResponse.json();
+            const assignedIds = assignedPermissions.map(permission => permission.permissionId);
+            console.log(assignedPermissions);
 
             const permissionsList = document.getElementById('permissions-list');
             permissionsList.innerHTML = '';
             
             permissions.forEach(permission => {
-                const checkbox = document.createElement('input');
+                console.log(permission);
+                const checkbox = document.createElement('input');  
                 checkbox.type = 'checkbox';
                 checkbox.value = permission.id;
                 checkbox.name = 'permissions';
-                checkbox.checked = assignedPermissions.includes(permission.id);
+                checkbox.checked = assignedIds.includes(permission.id);
+                console.log(assignedIds.includes(permission.id));
+
                 const label = document.createElement('label');
                 label.appendChild(checkbox);
                 label.append(permission.permissionName);
@@ -71,9 +75,7 @@
             });
             const role = response;
 
-            console.log(role);
             document.getElementById('roleId').value = role.RoleId;
-            console.log(role.RoleId);
             document.getElementById('roleName').value = role.RoleName;
         }
 
