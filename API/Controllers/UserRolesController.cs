@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessLogics.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -8,6 +9,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UserRolesController : ControllerBase
     {
         public IUserRoleRepository _userRolesRepository;
@@ -18,11 +20,18 @@ namespace API.Controllers
             _mapper = mapper;
         }
         // PUT api/<UserRolesController>/5
-        [HttpPut("{userId}")]
+        [HttpPut("UpdateRolesOfUser/{userId}")]
         public IActionResult Put(Guid userId, [FromBody] List<Guid> roleIds)
         {
             _userRolesRepository.UpdateRolesOfUser(userId, roleIds);
             return NoContent();
+        }
+
+        [HttpGet("GetRolesOfUser/{userId}")]
+        public IActionResult Get(Guid userId)
+        {
+            var result = _userRolesRepository.GetRolesOfUser(userId);
+            return Ok(result);
         }
     }
 }

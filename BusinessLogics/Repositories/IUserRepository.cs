@@ -10,5 +10,7 @@ namespace BusinessLogics.Repositories
         public void Create(User user);
         public void Update(User user);
         public void Delete(Guid id);
+        User ValidateUser(string userName, string password);
+        public bool CheckUserNameExist(string userName);
     }
 }

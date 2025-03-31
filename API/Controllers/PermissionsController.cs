@@ -43,7 +43,7 @@ namespace API.Controllers
         [Route("GetPermissionOfRole/{roleId}")]
         public ActionResult<Role> GetPermissionOfRole(Guid roleId)
         {
-            var permissions = _permissionRepository.GetPermissonsOfRole(roleId);
+            var permissions = _permissionRepository.GetPermissionsOfRole(roleId);
             if (permissions == null)
                 return NotFound(new { message = "Not found." });
             return Ok(permissions);

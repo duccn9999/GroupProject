@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "Login";
+}
+<head>
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2>Login</h2>
+            <p>Hey, Enter your details to get sign in to your account</p>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Enter Email / Phone No" required>
+                <input type="password" id="password" placeholder="Passcode" required>
+                <a href="#" class="trouble-text">Having trouble in sign in?</a>
+                <button type="submit">Sign in</button>
+            </form>
+            <p class="register-text">Don't have an account? <a href="#">Request Now</a></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Check if the user is already logged in
+        if (sessionStorage.getItem("token")) {
+            window.location.href = "/Home/Index"; // Redirect to dashboard if logged in
+        }
+
+        $("#loginForm").submit(function (event) {
+            event.preventDefault();
+
+            var username = $("#username").val();
+            var password = $("#password").val();
+
+            $.ajax({
+                url: "https://localhost:7079/api/auth/login", // Call API directly
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    UserName: username,
+                    Password: password
+                }),
+                success: function (response) {
+                    sessionStorage.setItem("token", response.token); // Store JWT token
+                    window.location.href = "/Home/Index"; // Redirect to dashboard
+                },
+                error: function (xhr) {
+                    $("#errorMessage").text("Invalid username or password.");
+                }
+            });
+        });
+    });
+</script>

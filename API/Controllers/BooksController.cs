@@ -2,6 +2,9 @@
 using BusinessLogics.Repositories;
 using DataAccess.DTOs.Books;
 using DataAccess.Models;
+using DataAccess.Seed;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -10,7 +13,9 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace API.Controllers
 {
+    [EnableCors("AllowFrontend")]
     [Route("odata/Books")]
+    [Authorize(Policy = PermissionClaims.CAN_MANAGE_BOOKS)]
     public class BooksController : ODataController
     {
         private readonly IBookRepository _bookRepository;
@@ -25,7 +30,7 @@ namespace API.Controllers
         // GET: api/Books
         [HttpGet]
         [EnableQuery]
-        public ActionResult<IQueryable<Book>> GetAll()
+        public ActionResult<IEnumerable<Book>> GetAll()
         {
             var books = _bookRepository.GetAll().AsQueryable();
             return Ok(books);
@@ -33,6 +38,7 @@ namespace API.Controllers
 
         // GET api/Books/{id}
         [HttpGet("{id}")]
+        [Authorize(Policy = PermissionClaims.CAN_VIEW_BOOK_DETAIL)]
         public ActionResult<GetBookDTO> GetById(Guid id)
         {
             var book = _bookRepository.GetById(id);
@@ -42,6 +48,7 @@ namespace API.Controllers
         }
 
         // POST api/Books
+        [Authorize(Policy = PermissionClaims.CAN_ADD_BOOKS)]
         [HttpPost]
         public ActionResult Create([FromBody] CreateBookDTO model)
         {
@@ -54,6 +61,7 @@ namespace API.Controllers
         }
 
         // PUT api/Books/{id}
+        [Authorize(Policy = PermissionClaims.CAN_UPDATE_BOOKS)]
         [HttpPut]
         public ActionResult Update([FromBody] UpdateBookDTO model)
         {
@@ -72,6 +80,7 @@ namespace API.Controllers
 
         // DELETE api/Books/{id}
         [HttpDelete("{id}")]
+        [Authorize(Policy = PermissionClaims.CAN_DELETE_BOOKS)]
         public ActionResult Delete(Guid id)
         {
             var existingBook = _bookRepository.GetById(id);

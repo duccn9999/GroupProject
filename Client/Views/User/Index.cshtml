@@ -1,0 +1,100 @@
+@{
+    ViewData["Title"] = "Users";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/book.css" />
+    <link rel="stylesheet" href="~/css/user.css" />
+</head>
+
+<body>
+
+    <div class="dashboard-content">
+        <div class="content-header">
+            <h1>Users</h1>
+            <div class="content-controls">
+                <button class="add-button" onclick="addNewUser()">
+                    <i class="fas fa-plus"></i>
+                    Add New User
+                </button>
+            </div>
+        </div>
+
+        <div class="list-table">
+            <div class="table-header">
+                <div class="header-cell">User ID</div>
+                <div class="header-cell">User Name</div>
+                <div class="header-cell">User Password</div>
+                <div class="header-cell">Actions</div>
+            </div>
+            <div class="table-body" id="user-table-body">
+                <!-- Data will be inserted here dynamically -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        token = sessionStorage.getItem('token'); // Assuming you store the token in localStorage
+        async function fetchUsers() {
+            const response = await $.ajax({
+                url: 'https://localhost:7079/odata/Users',
+                method: 'GET',
+                dataType: 'json',
+                headers:{
+                    'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+                }
+            });
+
+            const data = response.value;
+
+            console.log(data);
+            const tableBody = document.getElementById('user-table-body');
+            tableBody.innerHTML = '';
+            console.log(data);
+
+            data.forEach(user => {
+                console.log(user.UserId);
+                const row = `<div class='table-row'>
+                    <div class='cell'>${user.UserId}</div>
+                    <div class='cell'>${user.UserName}</div>
+                    <div class='cell'>
+                        <div class="password-field">
+                            <input type="password" id="password-${user.UserId}" value="${user.Password}" class="password-input" readonly />
+                            <button class="toggle-password" onclick="togglePassword('${user.UserId}')">👁</button>
+                        </div>
+                    </div>
+                    <div class='cell'>
+                        <button class='action-button' onclick='editUser("${user.UserId}", "${user.UserName}")'><i class='fas fa-edit'></i></button>
+                        <button class='action-button' onclick='deleteUser("${user.UserId}")'><i class='fas fa-trash'></i></button>
+                    </div>
+                </div>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function togglePassword(userId) {
+            const passwordField = document.getElementById(`password-${userId}`);
+            const toggleButton = passwordField.nextElementSibling; // Get the button
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordField.type = "password";
+                toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        function addNewUser() {
+            window.location.href = '/User/Create'; // Redirect to the Create User page
+        }
+
+        function editUser(userId, userName) {
+            window.location.href = `/User/Edit?id=${userId}`; // Redirect to the Edit User page
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+    </script>
+</body>

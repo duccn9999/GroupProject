@@ -2,6 +2,7 @@
 using BusinessLogics.Repositories;
 using DataAccess.DTOs.Users;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 namespace API.Controllers
 {
     [Route("odata/Users")]
+    [Authorize(Roles = "Admin")]
     public class UsersController : ODataController
     {
         private readonly IUserRepository _userRepository;
@@ -53,6 +55,10 @@ namespace API.Controllers
         {
             if (model == null)
                 return BadRequest(new { message = "Invalid user data." });
+            if (_userRepository.CheckUserNameExist(model.UserName))
+            {
+                return BadRequest("This username is already exist");
+            }
             var user = _mapper.Map<User>(model);
             _userRepository.Create(user);
             return Created(user);

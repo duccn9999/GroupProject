@@ -2,6 +2,8 @@
 using BusinessLogics.Repositories;
 using DataAccess.DTOs.Categories;
 using DataAccess.Models;
+using DataAccess.Seed;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 namespace API.Controllers
 {
     [Route("odata/Categories")]
+    [Authorize(Policy = PermissionClaims.CAN_MANAGE_CATEGORIES)]
     public class CategoriesController : ODataController
     {
         private readonly ICategoryRepository _categoryRepository;
@@ -23,6 +26,8 @@ namespace API.Controllers
         // GET: odata/Categories
         [HttpGet]
         [EnableQuery] // Enables OData querying ($filter, $orderby, etc.)
+        [Authorize(Policy = PermissionClaims.CAN_ADD_BOOKS)]
+        [Authorize(Policy = PermissionClaims.CAN_UPDATE_BOOKS)]
         public ActionResult<IQueryable<Category>> GetAll()
         {
             return Ok(_categoryRepository.GetAll().AsQueryable());
@@ -41,6 +46,7 @@ namespace API.Controllers
 
         // POST: odata/Categories
         [HttpPost]
+        [Authorize(Policy = PermissionClaims.CAN_ADD_CATEGORIES)]
         public ActionResult Create([FromBody] CreateCategoryDTO model)
         {
             if (model == null)
@@ -52,6 +58,7 @@ namespace API.Controllers
 
         // PUT: odata/Categories/{id}
         [HttpPut]
+        [Authorize(Policy = PermissionClaims.CAN_UPDATE_CATEGORIES)]
         public ActionResult Update([FromBody] UpdateCategoryDTO model)
         {
             if (!ModelState.IsValid)
@@ -69,6 +76,7 @@ namespace API.Controllers
 
         // DELETE: odata/Categories/{id}
         [HttpDelete("{id}")]
+        [Authorize(Policy = PermissionClaims.CAN_DELETE_CATEGORIES)]
         public ActionResult Delete(Guid id)
         {
             var existingCategory = _categoryRepository.GetById(id);

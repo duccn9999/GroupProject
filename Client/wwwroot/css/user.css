@@ -1,0 +1,51 @@
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table-header, .table-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    align-items: center;
+}
+
+.header-cell, .cell {
+    flex: 1;
+    text-align: left;
+    padding: 10px;
+}
+
+.cell input {
+    border: none;
+    padding: 5px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.cell .password-field {
+    display: flex;
+    align-items: center;
+    padding-right: 100px;
+}
+
+.cell .toggle-password {
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* margin-left: px; */
+}
+
+.edit-button, .delete-button {
+    background: none;
+    border: none;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.edit-button:hover, .delete-button:hover {
+    color: darkblue;
+}

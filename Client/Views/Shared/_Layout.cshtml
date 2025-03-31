@@ -1,49 +1,171 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var path = HttpContextAccessor.HttpContext?.Request.Path.Value ?? "";
+    var isAuthPage = path.StartsWith("/Auth", StringComparison.OrdinalIgnoreCase);
+}
+
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Client</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/book.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Client.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Client</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    @if (!isAuthPage)
+    {
+        <div class="sidebar">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-book"></i>
                 </div>
+                <div class="logo-text">BOOKS</div>
             </div>
-        </nav>
-    </header>
+
+            <div class="menu-label">MENU</div>
+
+            <div class="nav-items">
+                <a href="/Home" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/Book" class="nav-item">
+                    <i class="fas fa-book-open"></i>
+                    <span>Book</span>
+                </a>
+                <a href="/Category" class="nav-item">
+                    <i class="fas fa-tags"></i>
+                    <span>Category</span>
+                </a>
+                <a href="/User" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>User</span>
+                </a>
+
+                <div class="divider"></div>
+
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Setting</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help</span>
+                </a>
+                <a href="/Auth/Logout" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </a>
+            </div>
+        </div>
+    }
+
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody()
+            <div class="dashboard-container">
+                @if (!isAuthPage)
+                {
+                    <div class="dashboard-header">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="searchInput" placeholder="Search" class="search-input">
+                        </div>
+                        <div class="user-controls">
+                            <div class="user-profile">
+                                <img id="profileImage" src="/img/user.png" alt="User Profile" class="profile-image">
+                                <div class="user-info">
+                                    <div class="user-name" id="userName">Loading...</div>
+                                    <div class="user-email" id="userEmail"></div>
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @RenderBody()
+            </div>
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - Client - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    <script>
+        const token = sessionStorage.getItem("token");
+        let currentuser = localStorage.getItem("user");
+
+        //console.log("Token:", token);
+        //console.log("User:", currentuser);
+
+        if (!token && !@isAuthPage) {
+            window.location.href = "/Auth/Login"; // Redirect to login page if not authenticated
+        }
+
+        if (token && !currentuser) {
+            console.log("Fetching user data...");
+            try {
+                const response = fetch("https://localhost:7079/api/Auth/getUser", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok " + response.statusText);
+                    }
+                    return response.json();
+                }).then(data => {
+                    currentuser = data;
+                    console.log("User data:", currentuser);
+                    localStorage.setItem("user", JSON.stringify(currentuser));
+                }).catch(error => {
+                    console.error("Error fetching user data:", error);
+                });
+
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        }
+
+        currentuser = JSON.parse(localStorage.getItem("user"));
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentuser = JSON.parse(localStorage.getItem("user"));
+
+            if (currentuser) {
+                document.getElementById("userName").textContent = currentuser.userName;
+                document.getElementById("userEmail").textContent = currentuser.email;
+                //document.getElementById("profileImage").src = user.profileImageUrl;
+            } else {
+                document.getElementById("userName").textContent = "Guest";
+                document.getElementById("userEmail").textContent = "";
+                //document.getElementById("profileImage").src = "/img/user.png";
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("searchInput");
+
+            searchInput.addEventListener("input", function () {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                window.dispatchEvent(new CustomEvent("globalSearch", { detail: searchTerm }));
+            });
+        });
+    </script>
+
+    @* <footer class="border-top footer text-muted">
+    <div class="container">
+    &copy; 2025 - Client - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    </div>
+    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

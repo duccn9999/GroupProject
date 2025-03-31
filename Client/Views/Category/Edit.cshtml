@@ -1,0 +1,76 @@
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/book.css" />
+    <link rel="stylesheet" href="~/css/create.css" />
+</head>
+<body>
+    <div class="create-book-container">
+        <h1>Edit Category</h1>
+
+        <form id="edit-book-form" method="post" onsubmit="return submitForm(event)">
+            <input type="hidden" id="categoryId" name="categoryId" />
+
+            <div class="form-group">
+                <label for="title">Category Name</label>
+                <input type="text" id="title" name="title" required />
+            </div>
+
+            <button type="submit" class="submit-button">Update Product</button>
+            <a href="@Url.Action("Index", "Category")" class="cancel-button">Cancel</a>
+        </form>
+    </div>
+
+    <script>
+        token = sessionStorage.getItem('token'); // Assuming you store the token in localStorage
+
+        async function fetchCategory(categoryId) {
+            const response = await fetch(`https://localhost:7079/odata/Categories/${categoryId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const category = await response.json();
+
+            document.getElementById('categoryId').value = category.CategoryId; // Assuming you have a hidden input for the category ID
+            document.getElementById('title').value = category.CategoryName;
+        }
+
+        async function submitForm(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            const formData = new FormData(event.target);
+            const data = {
+                categoryId: formData.get('categoryId'), // Assuming you have a hidden input for the category ID
+                categoryName: formData.get('title'),
+            };
+
+            $.ajax({
+                url: 'https://localhost:7079/odata/Categories',
+                type: 'PUT',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                data: JSON.stringify(data),
+                success: function () {
+                    alert('Category updated successfully!');
+                    window.location.href = '@Url.Action("Index", "Category")'; // Redirect to the category list
+                },
+                error: function (xhr) {
+                    alert(`Error updating category: ${xhr.responseText}`);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryId = urlParams.get('id'); // Assuming the ID is passed as a query parameter
+            console.log(categoryId); // Log the book ID for debugging
+            await fetchCategory(categoryId); // Fetch category details on page load
+        });
+    </script>
+</body>

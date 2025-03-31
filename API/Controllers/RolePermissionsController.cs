@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessLogics.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 namespace API.Controllers
 {
     [Route("odata/RolePermissions")]
+    [Authorize(Roles = "Admin")]
     public class RolePermissionsController : ODataController
     {
         private readonly IRolePermissonRepository _rolePermissonRepository;
@@ -19,7 +21,7 @@ namespace API.Controllers
         }
 
         // PUT api/<RolePermissionsController>/5
-        [HttpPut("{roleId}")]
+        [HttpPut("UpdateRolePermissionOfRole/{roleId}")]
         public IActionResult Put(Guid roleId, [FromBody] List<Guid> permissionIds)
         {
             _rolePermissonRepository.UpdateRolePermissionOfRole(roleId, permissionIds);
