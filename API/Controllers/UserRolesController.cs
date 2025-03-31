@@ -26,5 +26,12 @@ namespace API.Controllers
             _userRolesRepository.UpdateRolesOfUser(userId, roleIds);
             return NoContent();
         }
+
+        [HttpGet("GetRolesOfUser/{userId}")]
+        public IActionResult Get(Guid userId)
+        {
+            var result = _userRolesRepository.GetRolesOfUser(userId);
+            return Ok(result);
+        }
     }
 }

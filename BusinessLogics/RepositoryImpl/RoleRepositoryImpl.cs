@@ -55,7 +55,7 @@ namespace BusinessLogics.RepositoryImpl
 
         public List<Role> GetAll()
         {
-            return _context.Roles.ToList();
+            return _context.Roles.Where(x => x.RoleName != "Admin").ToList();
         }
 
         public Role GetById(Guid id)
