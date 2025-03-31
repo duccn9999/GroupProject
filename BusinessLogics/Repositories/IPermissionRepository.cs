@@ -1,11 +1,12 @@
 ﻿using DataAccess.Models;
 
+using DataAccess.DTOs.Permissions;
 namespace BusinessLogics.Repositories
 {
     public interface IPermissionRepository
     {
         public List<Permission> GetAll();
         public Permission GetById(Guid id);
-        public List<Permission> GetPermissionsOfRole(Guid roleId);
+        public List<PermissionDTO> GetPermissionsOfRole(Guid roleId);
     }
 }

@@ -26,6 +26,8 @@ namespace API.Controllers
         // GET: odata/Categories
         [HttpGet]
         [EnableQuery] // Enables OData querying ($filter, $orderby, etc.)
+        [Authorize(Policy = PermissionClaims.CAN_ADD_BOOKS)]
+        [Authorize(Policy = PermissionClaims.CAN_UPDATE_BOOKS)]
         public ActionResult<IQueryable<Category>> GetAll()
         {
             return Ok(_categoryRepository.GetAll().AsQueryable());

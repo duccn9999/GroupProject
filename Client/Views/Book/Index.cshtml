@@ -83,15 +83,15 @@
 
             data.value.forEach(book => {
                 const row = `<div class='table-row'>
-                <div class='cell'>${book.Title}</div>
-                <div class='cell'>${book.Description}</div>
-                <div class='cell'>$${book.Price.toFixed(2)}</div>
-                <div class='cell'>${book.Stock} pcs</div>
-                <div class='cell'>
-                    <button class='action-button' onclick="editBook('${book.BookId}')"><i class='fas fa-edit'></i></button>
-                    <button class='action-button' onclick="deleteBook('${book.BookId}')"><i class='fas fa-trash'></i></button>
-                </div>
-            </div>`;
+                        <div class='cell'>${book.Title}</div>
+                        <div class='cell'>${book.Description}</div>
+                        <div class='cell'>$${book.Price.toFixed(2)}</div>
+                        <div class='cell'>${book.Stock} pcs</div>
+                        <div class='cell'>
+                            <button class='action-button' onclick="editBook('${book.BookId}')"><i class='fas fa-edit'></i></button>
+                            <button class='action-button' onclick="deleteBook('${book.BookId}')"><i class='fas fa-trash'></i></button>
+                        </div>
+                    </div>`;
                 tableBody.innerHTML += row;
             });
 
@@ -124,7 +124,7 @@
         function deleteBook(bookId) {
             if (confirm('Are you sure you want to delete this book?')) {
                 $.ajax({
-                    url: `https://localhost:7079/odata/Books(${bookId})`,
+                    url: `https://localhost:7079/odata/Books/${bookId}`,
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
