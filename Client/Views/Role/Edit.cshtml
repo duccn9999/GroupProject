@@ -1,0 +1,127 @@
+@{
+    ViewData["Title"] = "Edit Role";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/book.css" />
+    <link rel="stylesheet" href="~/css/create.css" />
+</head>
+<body>
+    <div class="create-book-container">
+        <h1>Edit Role</h1>
+        <form id="create-book-form" method="post" onsubmit="return submitForm(event)">
+            <input type="hidden" id="roleId" name="roleId" />
+
+            <div class="form-group">
+                <label for="roleName">Role Name</label>
+                <input type="text" id="roleName" name="roleName" required />
+            </div>
+
+            <div class="form-group">
+                <label>Permissions</label>
+                <div id="permissions-list"></div>
+            </div>
+
+            <button type="submit" class="submit-button">Update Role</button>
+            <a href="@Url.Action("Index", "Role")" class="cancel-button">Cancel</a>
+        </form>
+    </div>
+
+    <script>
+        token = sessionStorage.getItem('token'); // Assuming you store the token in localStorage
+        async function fetchPermissions(roleId) {
+            const response = await $.ajax({
+                url: `https://localhost:7079/api/Permissions`,
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const  permissions  = response;
+
+            console.log(response);
+            
+            const assignedResponse = await fetch(`https://localhost:7079/api/Permissions/GetPermissionOfRole/${roleId}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const assignedPermissions = await assignedResponse.json();
+
+            const permissionsList = document.getElementById('permissions-list');
+            permissionsList.innerHTML = '';
+            
+            permissions.forEach(permission => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = permission.id;
+                checkbox.name = 'permissions';
+                checkbox.checked = assignedPermissions.includes(permission.id);
+                const label = document.createElement('label');
+                label.appendChild(checkbox);
+                label.append(permission.permissionName);
+                
+                permissionsList.appendChild(label);
+            });
+        }
+
+        async function fetchRole(roleId) {
+            const response = await $.ajax({
+                url: `https://localhost:7079/odata/Roles/${roleId}`,
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const role = response;
+
+            console.log(role);
+            document.getElementById('roleId').value = role.RoleId;
+            console.log(role.RoleId);
+            document.getElementById('roleName').value = role.RoleName;
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const selectedPermissions = Array.from(document.querySelectorAll('input[name="permissions"]:checked')).map(cb => cb.value);
+            const roleId = document.getElementById('roleId').value
+            console.log(roleId);
+
+            $.ajax({
+                url: `https://localhost:7079/odata/Roles`,
+                method: 'PUT',
+                contentType: 'application/json',
+                headers: { 'Authorization': `Bearer ${token}` },
+                data: JSON.stringify({ 
+                    roleId: roleId,
+                    roleName: formData.get('roleName') 
+                }),
+                success: function () {
+                    $.ajax({
+                        url: `https://localhost:7079/odata/RolePermissions/UpdateRolePermissionOfRole/${roleId}`,
+                        method: 'PUT',
+                        contentType: 'application/json',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        data: JSON.stringify(selectedPermissions),
+                        success: function () {
+                            alert('Role updated successfully!');
+                            window.location.href = '@Url.Action("Index", "Role")';
+                        },
+                        error: function () {
+                            alert('Error updating role permissions. Please try again.');
+                        }
+                    });
+                },
+                error: function () {
+                    alert('Error updating role. Please try again.');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roleId = urlParams.get('id');
+            if (roleId) {
+                await fetchRole(roleId);
+                await fetchPermissions(roleId);
+            }
+        });
+    </script>
+</body>

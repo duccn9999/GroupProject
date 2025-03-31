@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "Roles";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/book.css" />
+    <link rel="stylesheet" href="~/css/user.css" />
+</head>
+
+<body>
+
+    <div class="dashboard-content">
+        <div class="content-header">
+            <h1>Users</h1>
+            <div class="content-controls">
+                <button class="add-button" onclick="addNewRole()">
+                    <i class="fas fa-plus"></i>
+                    Add New Role
+                </button>
+            </div>
+        </div>
+
+        <div class="list-table">
+            <div class="table-header">
+                <div class="header-cell">Role ID</div>
+                <div class="header-cell">Role Name</div>
+                <div class="header-cell">Actions</div>
+            </div>
+            <div class="table-body" id="role-table-body">
+                <!-- Data will be inserted here dynamically -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        token = sessionStorage.getItem('token'); // Assuming you store the token in localStorage
+        async function fetchRoles() {
+            const response = await $.ajax({
+                url: 'https://localhost:7079/odata/Roles',
+                method: 'GET',
+                dataType: 'json',
+                headers:{
+                    'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+                }
+            });
+
+            const data = response.value;
+
+            console.log(data);
+            const tableBody = document.getElementById('role-table-body');
+            tableBody.innerHTML = '';
+            console.log(data);
+
+            data.forEach(role => {
+                console.log(role.RoleId);
+                const row = `<div class='table-row'>
+                    <div class='cell'>${role.RoleId}</div>
+                    <div class='cell'>${role.RoleName}</div>
+                    <div class='cell'>
+                        <button class='action-button' onclick='editRole("${role.RoleId}", "${role.RoleName}")'><i class='fas fa-edit'></i></button>
+                        <button class='action-button' onclick='deleteRole("${role.RoleId}")'><i class='fas fa-trash'></i></button>
+                    </div>
+                </div>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function addNewRole() {
+            window.location.href = '/Role/Create'; // Redirect to the Create Role page
+        }
+
+        function editRole(roleId, roleName) {
+            window.location.href = `/Role/Edit?id=${roleId}`; // Redirect to the Edit Role page
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchRoles);
+    </script>
+</body>
