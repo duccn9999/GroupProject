@@ -1,4 +1,5 @@
 ﻿using BusinessLogics.Repositories;
+using DataAccess.DTOs.Permissions;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +23,7 @@ namespace BusinessLogics.RepositoryImpl
             return _context.Permissions.Find(id);
         }
 
-        public List<Permission> GetPermissionsOfRole(Guid roleId)
+        public List<PermissionDTO> GetPermissionsOfRole(Guid roleId)
         {
             var role = _context.Roles
                 .Include(r => r.RolePermissions)
@@ -32,7 +33,15 @@ namespace BusinessLogics.RepositoryImpl
             if (role == null)
                 throw new Exception("Role not found.");
 
-            return role.RolePermissions.Select(rp => rp.Permission).ToList();
+            return role.RolePermissions
+                .Select(rp => new PermissionDTO
+                {
+                    PermissionId = rp.Permission.Id,
+                    PermissionName = rp.Permission.PermissionName,
+                    Value = rp.Permission.Value
+                })
+                .ToList();
         }
+
     }
 }
